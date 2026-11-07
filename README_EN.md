@@ -53,7 +53,7 @@ License: the repo is published under `GNU AGPL-3.0-only` (root [LICENSE](./LICEN
 
 ## Current stable baseline
 
-**Current version: `Horosa Skill 0.47.1` (114 callable tools; the public latest release is on the Releases page).**
+**Current version: `Horosa Skill 0.47.3` (114 callable tools; the public latest release is on the Releases page).**
 
 This release line brings the capability surface roughly to parity with the desktop app — and adds a trust stack no other metaphysics tool ships:
 
@@ -75,7 +75,7 @@ Local end-to-end signals:
 | Check | Result |
 | --- | --- |
 | Callable tools | `114 / 114 ok=true` |
-| Engineering tests | `2654 / 2654 pass` (offline CI shape: contract + export fixtures + node JS golden; a further 121 live integration tests need a local runtime and auto-skip when services are down) |
+| Engineering tests | `3186 / 3186 pass` (offline CI shape: contract + export fixtures + node JS golden; a further 121 live integration tests need a local runtime and auto-skip when services are down) |
 | Forced clarification when params unconfirmed | `104` technique tools trigger `must_ask_user=true` |
 | Safe-exempt tools | `10` registry / knowledge / parser tools are directly readable |
 | Xingque-style export structure | every business technique carries `export_snapshot` (`111` export techniques modeled; contract v16 mirrors desktop aiExport v60) |
@@ -323,7 +323,7 @@ Every tool call returns a uniform envelope:
 
 ```json
 {
-  "ok": true, "tool": "qimen", "version": "0.47.1",
+  "ok": true, "tool": "qimen", "version": "0.47.3",
   "input_normalized": {}, "data": {}, "summary": [],
   "warnings": [], "memory_ref": {}, "error": null
 }
@@ -344,7 +344,7 @@ echo '{"run_id":"<run_id>","user_question":"...","ai_answer":"...","ai_answer_st
 
 **Full chart report**: `report render --style chart` (or `report_render {style:"chart"}`) lays out every section of the technique's chart as a PDF / DOCX without any AI interpretation — cover, basic data, chart figures taken from the engine data (wheel / synastry bi-wheel, Zi Wei, Qimen, Da Liu Ren, hexagram, Taiyi sixteen palaces, Qi Zheng Si Yu, South Indian square, 90° Uranian dial; election results draw the chosen moment), clickable contents and bookmarks, "page N of M", and a technique-basis appendix.
 
-**Your own knowledge base**: drop notes (`.md` / `.txt`, optional front matter `title` / `techniques` / `tags`) into the folder `horosa-skill knowledge mine` prints (or `knowledge add <name> --file …`), then pass `knowledge:["entry", "#tag", "auto"]` to any technique; the selected text rides along as `data.knowledge_context` for the AI to consult. It never reaches the engine and never changes the chart; the total size is capped by `HOROSA_USER_KNOWLEDGE_MAX_CHARS`. GBK / UTF-16 files are read too, and anything unreadable is listed with its reason under `problems` in `knowledge mine`; removals and overwrites go to a trash first (`knowledge trash` / `knowledge restore`); stored runs keep references only, never the note text; `runtime uninstall --purge-data` keeps your knowledge folder unless you add `--purge-knowledge`. Search with `horosa_knowledge_search` / `horosa-skill knowledge search "term"` (2-character Chinese terms, 繁/简 folding, file line citations); long notes contribute only the passages relevant to the chart. Optional vector search (finds paraphrases): install `horosa-skill[vectors]`, then run `horosa-skill knowledge index --vectors` (downloads and verifies the 24 MB bge-small-zh model).
+**Your own knowledge base**: drop notes (`.md` / `.txt`, optional front matter `title` / `techniques` / `tags`) into the folder `horosa-skill knowledge mine` prints (or `knowledge add <name> --file …`), then pass `knowledge:["entry", "#tag", "auto"]` to any technique; the selected text rides along as `data.knowledge_context` for the AI to consult. It never reaches the engine and never changes the chart; the total size is capped by `HOROSA_USER_KNOWLEDGE_MAX_CHARS`. GBK / UTF-16 files are read too, and anything unreadable is listed with its reason under `problems` in `knowledge mine`; removals and overwrites go to a trash first (`knowledge trash` / `knowledge restore`); stored runs keep references only, never the note text; `runtime uninstall --purge-data` keeps your knowledge folder unless you add `--purge-knowledge`. Search with `horosa_knowledge_search` / `horosa-skill knowledge search "term"` (2-character Chinese terms, 繁/简 folding, file line citations); long notes contribute only the passages relevant to the chart. Optional vector search (finds paraphrases): `setup --client <client> --vectors` installs the dependencies (about 128 MB) into the environment your client starts the server in, downloads and verifies the 24 MB bge-small-zh model, and embeds your notes; the config is only written once all of that worked. If Hugging Face is unreachable, set `HF_ENDPOINT=<mirror>` (content is pinned by sha256). Later `setup` runs keep it on; `--no-vectors` turns it off. The `.mcpb` bundle does not carry these dependencies, so use `setup --client claude-desktop --vectors` if you want vectors there.
 
 This makes it not just a "tool layer" but a "tool layer + traceable knowledge base".
 
@@ -366,7 +366,7 @@ No checkout needed: **zero-install (no git, no PyPI)** — every release ships a
 straight from its URL; `HOROSA_RUNTIME_MIRROR` rewrites the wheel URL and the runtime URLs alike:
 
 ```bash
-WHL="https://github.com/Horace-Maxwell/horosa-skill/releases/download/v0.47.1/horosa_skill-0.47.1-py3-none-any.whl"
+WHL="https://github.com/Horace-Maxwell/horosa-skill/releases/download/v0.47.3/horosa_skill-0.47.3-py3-none-any.whl"
 uvx --from "$WHL" horosa-skill install                    # install the offline runtime (same as above)
 uvx --from "$WHL" horosa-skill doctor                     # health check
 uvx --from "$WHL" horosa-skill setup --client cursor       # zero-install one-command onboarding (picks `--launcher uvx-wheel`, writes the wheel URL)
@@ -377,7 +377,7 @@ uvx --from "$WHL" horosa-skill serve --transport stdio    # stdio for clients; `
 > The PyPI channel (`uvx horosa-skill …`) is wired but **not yet live** (it needs the maintainer's one-time Trusted Publisher setup); once on, the commands get shorter and behave the same.
 
 > [!NOTE]
-> 🐳 **Docker / Linux (experimental)**: the offline runtime is published for macOS (arm64) and Windows (x64) only — there is no Linux payload. What runs in a container is the **MCP gateway** (Python package + knowledge base + memory) pointed at a host or another machine that has the runtime via `HOROSA_SERVER_ROOT` / `HOROSA_CHART_SERVER_ROOT`. An **experimental** `horosa-skill/Dockerfile` + `docker-compose.yml` ship with the repo (gateway image: no offline runtime inside the container, so those two variables are mandatory; binding 0.0.0.0 requires `HOROSA_MCP_TOKEN`); by hand, `pip install "https://github.com/Horace-Maxwell/horosa-skill/releases/download/v0.47.1/horosa_skill-0.47.1-py3-none-any.whl"` (the release wheel — PyPI is not open yet) then `horosa-skill serve --transport streamable-http` is the gateway.
+> 🐳 **Docker / Linux (experimental)**: the offline runtime is published for macOS (arm64) and Windows (x64) only — there is no Linux payload. What runs in a container is the **MCP gateway** (Python package + knowledge base + memory) pointed at a host or another machine that has the runtime via `HOROSA_SERVER_ROOT` / `HOROSA_CHART_SERVER_ROOT`. An **experimental** `horosa-skill/Dockerfile` + `docker-compose.yml` ship with the repo (gateway image: no offline runtime inside the container, so those two variables are mandatory; binding 0.0.0.0 requires `HOROSA_MCP_TOKEN`); by hand, `pip install "https://github.com/Horace-Maxwell/horosa-skill/releases/download/v0.47.3/horosa_skill-0.47.3-py3-none-any.whl"` (the release wheel — PyPI is not open yet) then `horosa-skill serve --transport streamable-http` is the gateway.
 
 Troubleshooting install: `uv: command not found` -> install uv first (one-liner above); slow/broken network -> re-run `install` (resumes from the partial download) or set `HOROSA_RUNTIME_MIRROR=<mirror-prefix>`; low disk / busy ports / an unfamiliar doctor code -> `doctor --explain` adds 6–10 plain-language lines on stderr (stdout stays JSON) and `advice[]` gives every issue / warning code a `user_summary` + `next_action`, `--probe-network` checks the manifest URL through every mirror (the default makes no external request); macOS: the runtime will not start and leaves no log, or `doctor` reports `quarantine:runtime_binaries` -> the browser-downloaded archive carries Gatekeeper's quarantine attribute, run the `xattr -dr com.apple.quarantine <runtime/current>` command from `quarantine.fix`, then `runtime restart`; Windows `runtime.path_not_ascii` (or doctor issue `windows:runtime_root_not_ascii`; bazi / ziwei / liureng fail and chart-side techniques report parameter errors) -> the runtime path contains non-ASCII characters (the default path under a Chinese user name does) and the bundled Java 17 and Swiss Ephemeris access files through narrow-character APIs: `setx HOROSA_RUNTIME_ROOT C:\horosa`, open a new terminal, restart your AI client, rerun `install` / `setup`; Windows `runtime.install_long_path` -> `doctor.windows.headroom_chars` below zero means install will refuse: set `HOROSA_RUNTIME_ROOT=C:\horosa` or enable `LongPathsEnabled` (v0.38.0 shortens the install temp prefix, ~20 characters more headroom); slow or proxied downloads -> `HOROSA_RUNTIME_DOWNLOAD_TIMEOUT_SECONDS` (default 120) and `HOROSA_RUNTIME_DOWNLOAD_ATTEMPTS` (default 3, per mirror); a Windows Firewall prompt on first start or `doctor` warning `listener:not_loopback_only` -> the old launcher bound Java to 0.0.0.0; after upgrading run `uv run horosa-skill runtime restart` to re-apply the template (pins 127.0.0.1); services not starting under a Windows user name with spaces/CJK -> fixed in v0.38.0 (every path argument is quoted), `runtime restart` after upgrading; Codex showing a pile of errors or no tools on the first turn -> usually the timeouts are unset (Codex defaults 10 s/60 s): `uv run horosa-skill client check --client codex` names the missing keys and `client config --format codex --write ~/.codex/config.toml` merges the fix in place; `uvx` works in a terminal but a GUI client cannot start it -> GUI clients do not inherit your shell PATH, rerun `client config` (it now writes absolute paths) and `client check` reports `command_not_on_path`; upgrade -> `uv run horosa-skill upgrade` (skips the download when already current); uninstall -> `uv run horosa-skill uninstall` (dry-run by default).
 
@@ -414,8 +414,8 @@ uv run horosa-skill export registry
 ## Supported AI clients
 
 `setup --client <client>` does the whole onboarding in one command (v0.38.0): network probe (5 s) → install / verify the
-offline runtime → write the config (auto-located, only the horosa entry, `.horosa-bak` backup, atomic replace) →
-**install the horosa-agent skill into the skills folder that client reads** (v0.47.1; most clients read the shared
+offline runtime → (with `--vectors`) prepare vector search → write the config (auto-located, only the horosa entry, `.horosa-bak` backup, atomic replace) →
+**install the horosa-agent skill into the skills folder that client reads** (v0.47.3; most clients read the shared
 `~/.agents/skills`; `--no-skill` skips it, `--skill-dir` picks the folder) → doctor → re-read the file from disk → **start the server once over stdio with the exact command the client will run and count
 the tools** → print next steps. On failure a structured envelope goes to stderr (`step` / `code` / `config_untouched` /
 `backup_path` / `retry_command`) with exit code 2; failing before the config step guarantees `config_untouched: true`.
@@ -431,7 +431,7 @@ uv run horosa-skill client skill --client codex          # install only the skil
 ```
 
 The skill is the rule set agents read (clarify before calling / explain only from the returned snapshot / never hand-calculate);
-before v0.47.1 only agents that opened this repo saw it. The wheel now ships a copy and `setup` installs it. An existing
+before v0.47.3 only agents that opened this repo saw it. The wheel now ships a copy and `setup` installs it. An existing
 folder of the same name is left alone when another tool manages it (a symlink, e.g. `npx skills`) or when horosa-skill did
 not write it; a copy you edited is backed up as `horosa-agent.horosa-bak` before the update.
 
@@ -546,7 +546,7 @@ cd horosa-skill
 uv sync
 uv run horosa-skill install
 uv run horosa-skill doctor                              # expect issues: []
-uv run pytest -q                                        # 2654 passed; live integration tests auto-skip when services are down
+uv run pytest -q                                        # 3186 passed; live integration tests auto-skip when services are down
 uv run python scripts/run_benchmark.py                  # HorosaBench: registry-locked cases + dispatch / export parity / knowledge
 uv run python scripts/run_full_self_check.py --rounds 1 # all-tool call / export / persist / retrieve / dispatch
 ```

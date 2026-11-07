@@ -31,7 +31,7 @@ uv run horosa-skill report technique --group-id <group_id> --format markdown
 
 ## 合参（多技法交叉印证，v0.28.0）
 
-一问需要多技法互证时用 `horosa_hecan`（`query` + 出生数据，可显式 `tools`，上限 `max_tools`）。
+一问需要多技法互证时用 `horosa_hecan`（`query` + 出生数据，可显式 `tools`，上限 `max_tools`）。与 `horosa_dispatch` 同闸：先问用户，带 `agent_confirmed_settings` / `defaults_accepted` 再调。
 它返回**合参模板**，不是终稿：
 
 1. 逐技法读全量段落（`horosa_memory_show(run_id)`——响应里只有证据指针，不背全文）。
@@ -54,6 +54,27 @@ uv run horosa-skill report technique --group-id <group_id> --format markdown
    `resource_link` block — hand the user that link / path instead of pasting the file.
 6. Confirm the returned artifact exists and is retrievable via `horosa_memory_show` /
    `horosa_memory_query`.
+
+**Checking a JSON report.** `report_index.ready_to_deliver` is measured on what you wrote, not on the deterministic
+text the report fills in. It is `false` until you supply `direct_answer` (or `answer_text`), `executive_summary`,
+`analysis_sections`, `recommendations` and `evidence`; `delivery_checklist.missing` names what is absent.
+`section_coverage_matrix` shows which chart sections you actually explained. A targeted answer that skips sections
+is still deliverable, so report those gaps rather than padding them.
+
+**PDF and DOCX print only what you wrote.** Nothing is filled in for you: a section you leave out does not appear under
+「AI 解读」. The chart data is always there under 完整盘面, so write the reading itself and do not restate the chart. Only the
+JSON report carries deterministic text, for section coverage.
+
+**Reading runs back.** `horosa_memory_query` returns summaries (`run_id`, question, tools, artifact paths); pass
+`include_payload: true` only when you need stored payloads in the result. `horosa_memory_show` returns the run in
+full. Both stay inside one MCP message: past about 900 KB the largest raw engine subtrees become
+`{"omitted": "too_large_for_mcp", ...}` placeholders and a line appears in `warnings`. `snapshot_text` and
+`export_snapshot` are kept, so the sections you read are still there; the full copy stays on disk
+(`horosa-skill memory show <run_id>`).
+
+`text` searches questions and answers across all runs, but the chart text inside artifacts only in the newest
+runs (400 at the default `limit`). When the result says `not_scanned: N`, N older runs were not searched for chart
+text. Before saying a run does not exist, narrow with `after` / `before` / `tool` / `entity` and search again.
 
 **Cite the chart by section number.** Every exported section has a `cite_id` (`E1`, `E2`, …) in the
 template's `source_export_sections`; the report prints it in front of that section's heading, and in the

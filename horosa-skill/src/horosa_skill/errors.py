@@ -359,6 +359,15 @@ RECOVERY_TABLE: dict[str, dict[str, _Any]] = {
         ),
         "next_action": "none_retry_cleanup_later",
     },
+    "runtime.install_start_in_progress": {
+        "kind": "runtime",
+        "prompt_to_user": bilingual(
+            "runtime 正在启动，这时换目录会把启动器脚下的文件搬走，安装未动 current/。等它起好（`horosa-skill runtime status` 看进度）后重试。",
+            "The runtime is starting; swapping directories now would pull the files out from under the launcher, so "
+            "current/ was left untouched. Wait for it to come up (`horosa-skill runtime status`), then retry.",
+        ),
+        "next_action": "wait_for_start_then_retry_install",
+    },
     "runtime.install_stop_failed": {
         "kind": "runtime",
         "prompt_to_user": bilingual(
@@ -501,6 +510,15 @@ def classify_code(code: str) -> tuple[str | None, str | None]:
     if _RETRY_SUFFIX.search(last):
         return "retry_or_doctor", "suffix"
     return None, None
+
+
+def validation_errors(exc: _Any) -> list[dict[str, _Any]]:
+    """pydantic ValidationError → 能进信封的错误表。
+
+    `exc.errors()` 的 `ctx.error` 是异常对象（字段校验器抛的 ValueError）：放进 details 就出不了进程，`json.dumps` 当场 TypeError，
+    CLI 契约里的 exit 2 + JSON 变成 exit 1 + traceback。说明已经在 `msg` 里，`ctx` 与 `url` 都不要。
+    """
+    return exc.errors(include_url=False, include_context=False)
 
 
 def recovery_for(code: str, details: dict[str, _Any] | None) -> dict[str, _Any]:

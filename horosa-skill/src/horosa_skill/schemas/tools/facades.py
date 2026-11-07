@@ -197,7 +197,8 @@ class MemoryQueryInput(FlexibleModel):
     limit: int = 20
     # 分页偏移：跳过前 N 条命中（与 limit 搭配翻页）。
     offset: int = 0
-    include_payload: bool = True
+    # 缺省只回摘要（run_id、问题、技法、产物路径）；要全量用 horosa_memory_show，或显式传 true。
+    include_payload: bool = False
 
 
 class MemoryShowInput(FlexibleModel):
@@ -208,7 +209,7 @@ class MemoryShowInput(FlexibleModel):
 class ReportTemplateInput(FlexibleModel):
     run_id: str
     tool_name: str | None = None
-    language: str = "zh-CN"
+    language: str | None = None
 
 
 class ReportRenderInput(FlexibleModel):
@@ -219,7 +220,7 @@ class ReportRenderInput(FlexibleModel):
         default="analysis",
         description="analysis=AI 解盘报告（缺省）；chart=完整排盘报告，无需 AI 解读",
     )
-    language: str = "zh-CN"
+    language: str | None = None
     title: str | None = None
     ai_report: dict[str, Any] = Field(default_factory=dict)
     ai_answer_text: str | None = None
@@ -235,7 +236,7 @@ class ReportFromToolInput(FlexibleModel):
         default="analysis",
         description="analysis=AI 解盘报告（缺省）；chart=完整排盘报告，无需 AI 解读",
     )
-    language: str = "zh-CN"
+    language: str | None = None
     title: str | None = None
     question: str | None = None
     ai_report: dict[str, Any] = Field(default_factory=dict)
